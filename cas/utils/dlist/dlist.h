@@ -3,7 +3,19 @@
 
 #include <stddef.h>
 
-struct dlist;
+struct dlist_item
+{
+    struct dlist_item *next;
+    struct dlist_item *prev;
+    void *data;
+};
+
+struct dlist
+{
+    size_t size;
+    struct dlist_item *head;
+    struct dlist_item *tail;
+};
 
 struct dlist *dlist_init(void);
 

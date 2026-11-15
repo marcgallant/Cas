@@ -1,15 +1,22 @@
 CC = gcc
 CFLAGS = -fPIC -Wall -Wextra -Werror -std=c11 -g -I utils
 
-SRC = utils/hash_map/hash.c \
-      utils/hash_map/hash_map.c \
-      utils/dlist/dlist.c \
-      utils/arg_parser/arg_parser.c \
+SRC = utils/dlist/dlist.c \
+      utils/arg_parser/argument.c \
+      utils/arg_parser/parser.c \
       cJSON.c \
       configschema.c \
-      plugins/plugins.c \
+      plugins/build.c \
+      plugins/checkout.c \
       plugins/clean.c \
+      plugins/diff.c \
+      plugins/dump.c \
+      plugins/for_all_repos.c \
+      plugins/lock.c \
+      plugins/menu.c \
+      plugins/shell.c \
       cas.c
+
 OBJ = $(SRC:.c=.o)
 BIN = cas
 

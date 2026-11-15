@@ -1,105 +1,76 @@
-#define _GNU_SOURCE
+#include <stdlib.h>
 
-#include <getopt.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
+#include <arg_parser/parser.h>
 
-#include "configschema.h"
+#include "plugins/plugins.h"
 
-#include <arg_parser/arg_parser.h>
+Parser *kas_parser_init(void) {
+    Parser *parser = parser_init("kas", "kas - setup tool for bitbake based project");
+    dlist_push_back(parser->options, help_init());
 
-typedef enum {
-    LOG_DEBUG = 0,
-    LOG_INFO,
-    LOG_WARNING,
-    LOG_ERROR,
-    LOG_CRITICAL
-} log_level_t;
+    static const char *version_names[] = {
+        "--version",
+        NULL
+    };
 
-log_level_t log_level = LOG_INFO;
+    Argument *version = calloc(1, sizeof(Argument));
+    *version = (Argument) {
+        .type = ARG_OPTIONAL,
+        .help = "show program's version number and exit",
+        .data.optional.names = version_names
+    };
+    dlist_push_back(parser->options, version);
+ 
+    static const char *log_level_names[] = {
+        "-l",
+        "--log-level",
+        NULL
+    };
 
-float version = 5.5;
+    static const char *log_level_choices[] = {
+        "debug",
+        "info",
+        "warning",
+        "error",
+        "critical",
+        NULL
+    };
+    
+    Argument *log_level = calloc(1, sizeof(Argument));
+    *log_level = (Argument) {
+        .type = ARG_OPTIONAL,
+        .value_type = ARG_STRING,
+        .help = "Set log level (default: info)",
+        //.nargs = 1,
+        .required = false,
+        .default_value.string = "info",
+        .choices = log_level_choices,
+        .data.optional.names = log_level_names 
+    };
+    dlist_push_back(parser->options, log_level);
 
-void print_version() {
-    printf("kas %.1f (configuration format version %d, earliest compatible version %d)\n",
-        version,
-        file_version,
-        compatible_file_version);
+    Subparser subparser = parser_add_subparser(parser, "sub command help");
+
+    dlist_push_back(subparser.parsers, build_parser_init());
+    dlist_push_back(subparser.parsers, checkout_parser_init());
+    dlist_push_back(subparser.parsers, clean_parser_init());
+    dlist_push_back(subparser.parsers, cleansstate_parser_init());
+    dlist_push_back(subparser.parsers, cleanall_parser_init());
+    dlist_push_back(subparser.parsers, purge_parser_init());
+    dlist_push_back(subparser.parsers, diff_parser_init());
+    dlist_push_back(subparser.parsers, dump_parser_init());
+    dlist_push_back(subparser.parsers, for_all_repos_parser_init());
+    dlist_push_back(subparser.parsers, lock_parser_init());
+    dlist_push_back(subparser.parsers, menu_parser_init());
+    dlist_push_back(subparser.parsers, shell_parser_init());
+
+    return parser;
 }
 
-void print_usage() {}
+int main(void) {
+    Parser *parser = kas_parser_init();
 
-int main(int argc, char *argv[]) {
-    //TODO
-    /*int opt;
-    static struct option long_options[] = { 
-        { "log-level", required_argument, NULL, 'l' },
-        { "help",      no_argument,       NULL, 'h' },
-        {"version",    no_argument,       NULL, 'v' },
-    };
-    int ret = 0;
-    opterr = 0;
+    parser_destroy(parser);
 
-    if (!load_schema())
-        return 1;
-
-    while ((opt = getopt_long(argc, argv, "l:h", long_options, NULL)) != -1) {
-        switch (opt) {
-            case 0:
-                break;
-            case 'l':
-                int found = 0;
-                char *choices[5] = { "debug", "info", "warning", "error", "critical" };
-                for (size_t i = 0; i < sizeof(choices) / sizeof(char *) ; i++) {
-                    if (strcmp(optarg, choices[i]) == 0) {
-                        log_level = (log_level_t) i;
-                        found = 1;
-                        break;
-                    }
-                }
-
-                if (found) {
-                    print_usage();
-                    break;
-                }
-
-                print_usage();
-                printf("kas: error: argument -l/--log-level: invalid choice: '%s' (choose from ", optarg);
-                for (size_t i = 0; i < sizeof(choices) / sizeof(char *) - 1; i++)
-                    printf("%s, ", choices[i]);
-                printf("%s)\n", choices[sizeof(choices) /sizeof(char *) - 1]);
-
-                return 2;
-            case 'h':
-                //TODO
-                break;
-            case 'v':
-                print_version();
-                break;
-            case '?':
-            default:
-                //TODO
-                print_usage();
-                if (optopt)
-                    printf("kas: error: unrecognized arguments: -%c\n", optopt);
-                else
-                    printf("kas: error: unrecognized arguments: %s\n", argv[optind - 1]);
-                return 2;
-        }
-    }*/
-
-    struct arg_parser *parser = arg_parser_init("kas - setup tool for bitbake based project");
-    add_argument(parser, "help", 'h', NULL); 
-    add_argument(parser, "version", 0, NULL); 
-    
-    char *choices[] = { "debug", "info", "warning", "error", "critical", NULL };
-    add_argument(parser, "log-level", 0,  choices); 
-    
-    usage(parser);
-    parse(parser, argc, argv);
-
-    arg_parser_destroy(parser);
-        
     return 0;
 }
