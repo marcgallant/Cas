@@ -57,7 +57,7 @@ void print_optional(Argument *optional) {
     }
 
     if (optional->choices) {
-        n += printf(YELLOW BOLD "{") - 5 - 4;
+        n += printf(YELLOW BOLD " {") - 5 - 4;
         for (size_t i = 0; optional->choices[i]; i++) {
             n += printf("%s", optional->choices[i]);               
 
@@ -69,13 +69,11 @@ void print_optional(Argument *optional) {
     }
 
     if (n > 24) {
-        puts("\n");
+        puts("");
         n = 0;
     }
 
-    printf("%*s", 24 - n, "");
-
-    printf("%s\n", optional->help);
+    printf("%*s%s\n", 24 - n, "", optional->help);
 }
 
 void print_positional(Argument *positional) {
