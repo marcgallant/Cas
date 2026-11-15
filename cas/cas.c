@@ -70,6 +70,8 @@ Parser *kas_parser_init(void) {
 int main(void) {
     Parser *parser = kas_parser_init();
 
+    parser_print_help(parser);    
+
     parser_destroy(parser);
 
     return 0;
