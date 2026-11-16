@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cJSON.h"
+#include <cJSON/cJSON.h>
 
 int file_version = 0;
 int compatible_file_version = 0;

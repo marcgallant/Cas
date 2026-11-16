@@ -4,7 +4,7 @@ CFLAGS = -fPIC -Wall -Wextra -Werror -std=c11 -g -I utils
 SRC = utils/dlist/dlist.c \
       utils/arg_parser/argument.c \
       utils/arg_parser/parser.c \
-      cJSON.c \
+      utils/cJSON/cJSON.c \
       configschema.c \
       plugins/build.c \
       plugins/checkout.c \
