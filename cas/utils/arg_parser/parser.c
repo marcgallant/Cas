@@ -47,17 +47,22 @@ void optional_print_help(Argument *optional) {
     const char **names = optional->data.optional.names;
 
     for (size_t i = 0; names[i]; i++) {
+        printf(BOLD);
+
         if (names[i][1] == '-')
-            n += printf(CYAN BOLD "%s" RESET, names[i]) - 5 - 4 - 4;
+            n += printf(CYAN "%s", names[i]) - 5;
         else
-            n += printf(GREEN BOLD "%s" RESET, names[i]) - 5 - 4 - 4;
+            n += printf(GREEN "%s", names[i]) - 5;
+
+        printf(RESET);
 
         if (names[i + 1])
             n += printf(", ");
     }
 
     if (optional->choices) {
-        n += printf(YELLOW BOLD " {") - 5 - 4;
+        printf(YELLOW BOLD);
+        n += printf(" {");
         for (size_t i = 0; optional->choices[i]; i++) {
             n += printf("%s", optional->choices[i]);
 
@@ -65,12 +70,36 @@ void optional_print_help(Argument *optional) {
                 n += printf(",");
         }
 
-        n += printf("}" RESET) - 4;
+        n += printf("}");
+        printf(RESET);
     }
 
-    //TODO metavar
+    printf(YELLOW BOLD);
 
-    if (n > 24) {
+    if (optional->nargs > 0)
+    {
+        if (optional->metavar[1] != NULL) {
+            for (int i = 0; i < optional->nargs; i++) {
+                n += printf(" %s", optional->metavar[i]);
+            }
+        }
+        else {
+            for (int i = 0; i < optional->nargs; i++) {
+                n += printf(" %s", optional->metavar[0]);
+            }
+        }
+    } else if (optional->nargs == NARGS_OPTIONAL) {
+        n += printf(" [%s]", optional->metavar[0]);
+    } else if (optional->nargs == NARGS_ONE_OR_MORE) {
+        n += printf(" %s [%s ...]", optional->metavar[0], optional->metavar[0]);
+
+    } else if (optional->nargs == NARGS_ZERO_OR_MORE) {
+        n += printf(" [%s ...]", optional->metavar[0]);
+    }
+
+    printf(RESET);
+
+    if (n >= 24) {
         puts("");
         n = 0;
     }
@@ -79,8 +108,27 @@ void optional_print_help(Argument *optional) {
 }
 
 void positional_print_help(Argument *positional) {
-    (void)positional;
-    //TODO
+    int n = 0;
+    n += printf("  ");
+
+    printf(GREEN BOLD);
+
+    if (positional->nargs > 0) {
+        for (int i = 0; i < positional->nargs; i++) {
+            n += printf("%s", positional->data.positional.name);
+        }
+    } else {
+        n += printf("%s", positional->data.positional.name);
+    }
+
+    printf(RESET);
+
+    if (n >= 24) {
+        puts("");
+        n = 0;
+    }
+
+    printf("%*s%s\n", 24 - n, "", positional->help);
 }
 
 void subparser_print_help(Argument *subparser) {
@@ -90,8 +138,6 @@ void subparser_print_help(Argument *subparser) {
 
 void arguments_print_help(struct dlist *arguments) {
     if (!arguments || arguments->size == 0) return;
-
-    //TODO
 
     struct dlist_item *tmp = arguments->head;
     while (tmp) {
@@ -120,14 +166,16 @@ void options_print_help(struct dlist *options) {
 void optional_print_usage(Argument *optional) {
     printf("[");
     const char **names = optional->data.optional.names;
-
     if (names[0][1] == '-')
-        printf(CYAN "%s" RESET, names[0]);
+        printf(CYAN "%s", names[0]);
     else
-        printf(GREEN "%s" RESET, names[0]);
+        printf(GREEN "%s", names[0]);
+
+    printf(RESET);
 
     if (optional->choices) {
-        printf(YELLOW " {");
+        printf(YELLOW);
+        printf(" {");
         for (size_t i = 0; optional->choices[i]; i++) {
             printf("%s", optional->choices[i]);
 
@@ -135,22 +183,54 @@ void optional_print_usage(Argument *optional) {
                 printf(",");
         }
 
-        printf("}" RESET);
+        printf("}");
+        printf(RESET);
     }
 
-    //TODO metavar
+    printf(YELLOW);
 
+    if (optional->nargs > 0)
+    {
+        if (optional->metavar[1] != NULL) {
+            for (int i = 0; i < optional->nargs; i++) {
+                printf(" %s", optional->metavar[i]);
+            }
+        }
+        else {
+            for (int i = 0; i < optional->nargs; i++) {
+                printf(" %s", optional->metavar[0]);
+            }
+        }
+    } else if (optional->nargs == NARGS_OPTIONAL) {
+        printf(YELLOW " [%s]", optional->metavar[0]);
+    } else if (optional->nargs == NARGS_ONE_OR_MORE) {
+        printf(" %s [%s ...]", optional->metavar[0], optional->metavar[0]);
+
+    } else if (optional->nargs == NARGS_ZERO_OR_MORE) {
+        printf(" %s ...", optional->metavar[0]);
+    }
+
+    printf(RESET);
     printf("]");
 }
 
 void positional_print_usage(Argument *positional) {
-    //TODO
     printf(GREEN);
     if (!positional->required)
         printf("[");
 
-    const char *name = positional->data.positional.name;
-    printf(GREEN "%s", name);
+    if (positional->nargs > 0) {
+        for (int i = 0; i < positional->nargs; i++) {
+            printf("%s", positional->data.positional.name);
+        }
+    } else if (positional->nargs == NARGS_OPTIONAL) {
+        printf( "[%s]", positional->data.positional.name);
+    } else if (positional->nargs == NARGS_ONE_OR_MORE) {
+        printf( "%s [%s ...]", positional->data.positional.name, positional->data.positional.name);
+
+    } else if (positional->nargs == NARGS_ZERO_OR_MORE) {
+        printf( "%s ...", positional->data.positional.name);
+    }
 
     if (!positional->required)
         printf("]");

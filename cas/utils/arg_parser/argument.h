@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#define NARGS_OPTIONAL -1
+#define NARGS_ZERO_OR_MORE -2
+#define NARGS_ONE_OR_MORE -3
+
 typedef enum {
     ARG_POSITIONAL,
     ARG_OPTIONAL,

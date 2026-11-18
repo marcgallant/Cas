@@ -14,12 +14,17 @@ Parser *build_parser_init(void) {
         NULL
     };
 
+    static const char *target_metavar[] = {
+        "TARGET",
+        NULL
+    };
+
     Argument *target = calloc(1, sizeof(Argument));
     *target = (Argument) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_STRING,
         .help = "Select target to build",
-        .metavar = "TARGET",
+        .metavar = target_metavar,
         .nargs = 1,
         .required = false,
         .data.optional.names = target_names
@@ -33,12 +38,17 @@ Parser *build_parser_init(void) {
         NULL
     };
 
+    static const char *task_metavar[] = {
+        "TASK",
+        NULL
+    };
+
     Argument *task = calloc(1, sizeof(Argument));
     *task = (Argument) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_STRING,
         .help = "Select which task should be executed",
-        .metavar = "TASK",
+        .metavar = task_metavar,
         .nargs = 1,
         .required = false,
         .data.optional.names = task_names
@@ -62,7 +72,6 @@ Parser *build_parser_init(void) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_STRING,
         .help = "Enable provenance attestation generation",
-        //.nargs = 1,
         .required = false,
         .choices = provenance_choices,
         .data.optional.names = provenance_names
@@ -76,7 +85,7 @@ Parser *build_parser_init(void) {
         .type = ARG_POSITIONAL,
         .value_type = ARG_STRING,
         .help = "Extra arguments to pass to bitbake (typically requires separation via '--')",
-        .nargs = -1, //TODO: define
+        .nargs = NARGS_ZERO_OR_MORE,
         .required = false,
         .data.positional.name = "extra_bitbake_args"
     };

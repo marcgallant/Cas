@@ -28,12 +28,17 @@ Argument *skip_init(void) {
         NULL
     };
 
+    static const char *step_metavar[] = {
+        "STEP",
+        NULL
+    };
+
     Argument *skip = calloc(1, sizeof(Argument));
     *skip = (Argument) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_STRING,
         .help = "Skip build steps. To skip more than one step, use this argument multiple times. Possible choices: setup_dir, setup_home, init_setup_repos, repo_setup_loop, finish_setup_repos, repos_checkout, repos_check_signatures, repos_apply_patches, setup_environ, write_bbconfig.",
-        .metavar = "STEP",
+        .metavar = step_metavar,
         .nargs = 1,
         .required = false,
         .data.optional.names = skip_names
@@ -123,12 +128,17 @@ Argument *indent_init(void) {
         NULL
     };
 
+    static const char *indent_metavar[] = {
+        "INDENT",
+        NULL
+    };
+
     Argument *indent = calloc(1, sizeof(Argument));
     *indent = (Argument) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_INT,
         .help = "Line indent (# of spaces, default: 4)", //TODO: check this out: automatic ?
-        .metavar = "INDENT",
+        .metavar = indent_metavar,
         .default_value.integer = 4,
         .nargs = 1,
         .required = false,

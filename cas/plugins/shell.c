@@ -9,23 +9,28 @@ Parser *shell_parser_init() {
     dlist_push_back(shell_parser->options, preserve_env_init());
     dlist_push_back(shell_parser->options, keep_config_unchanged_init());
 
-    static const char *command2_names[] = {
+    static const char *command_names[] = {
         "-c"
         "--command",
         NULL
     };
 
-    Argument *command2 = calloc(1, sizeof(Argument));
-    *command2 = (Argument) {
+    static const char *command_metavar[] = {
+        "COMMAND",
+        NULL
+    };
+
+    Argument *command = calloc(1, sizeof(Argument));
+    *command = (Argument) {
         .type = ARG_OPTIONAL,
         .value_type = ARG_STRING,
         .help = "Run command",
-        .metavar = "COMMAND",
+        .metavar = command_metavar,
         .nargs = 1,
         .required = false,
-        .data.optional.names = command2_names
+        .data.optional.names = command_names
     };
-    dlist_push_back(shell_parser->options, command2);
+    dlist_push_back(shell_parser->options, command);
 
     dlist_push_back(shell_parser->arguments, config_init());
 
