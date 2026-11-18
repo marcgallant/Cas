@@ -17,7 +17,7 @@ Parser *diff_parser_init(void) {
         "text",
         NULL
     };
-    
+
     Argument *format = calloc(1, sizeof(Argument));
     *format = (Argument) {
         .type = ARG_OPTIONAL,
@@ -42,10 +42,10 @@ Parser *diff_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Use git oneline output for differing commits.",
         .data.optional.names = oneline_names
-        
+
     };
     dlist_push_back(diff_parser->options, oneline);
-    
+
     static const char *no_color_names[] = {
         "--no-color",
         NULL
@@ -56,7 +56,7 @@ Parser *diff_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Disable colored highlighting of diffs.",
         .data.optional.names = no_color_names
-        
+
     };
     dlist_push_back(diff_parser->options, no_color);
 
@@ -70,7 +70,6 @@ Parser *diff_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "This will not display the differences in the KAS configurations; it will only list commits resulting from different repository revisions.",
         .data.optional.names = commit_only_names
-        
     };
     dlist_push_back(diff_parser->options, commit_only);
 
@@ -84,7 +83,6 @@ Parser *diff_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "This will only display the differences in the KAS configurations and will not include repository differences.",
         .data.optional.names = content_only_names
-        
     };
     dlist_push_back(diff_parser->options, content_only);
 
@@ -95,10 +93,10 @@ Parser *diff_parser_init(void) {
         .help = "The first config file to be compared.",
         .nargs = 1,
         .required = true,
-        .data.positional.name = "config1" 
+        .data.positional.name = "config1"
     };
     dlist_push_back(diff_parser->arguments, config1);
-    
+
     Argument *config2 = calloc(1, sizeof(Argument));
     *config2 = (Argument) {
         .type = ARG_POSITIONAL,
@@ -106,9 +104,9 @@ Parser *diff_parser_init(void) {
         .help = "The second config file to be compared.",
         .nargs = 1,
         .required = true,
-        .data.positional.name = "config2" 
+        .data.positional.name = "config2"
     };
     dlist_push_back(diff_parser->arguments, config2);
-    
+
     return diff_parser;
 }

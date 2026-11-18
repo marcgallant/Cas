@@ -83,7 +83,7 @@ Argument *dry_run_init(void) {
         .help = "Do not remove anything, just print what would be removed",
         .data.optional.names = dry_run_names
     };
-    return dry_run; 
+    return dry_run;
 }
 
 Argument *isar_init(void) {
@@ -98,7 +98,7 @@ Argument *isar_init(void) {
         .help = "Use ISAR build directory layout",
         .data.optional.names = isar_names
     };
-    return isar; 
+    return isar;
 }
 
 Argument *keep_config_unchanged_init(void) {
@@ -114,7 +114,7 @@ Argument *keep_config_unchanged_init(void) {
         .help = "Skip steps that change the configuration",
         .data.optional.names = keep_config_unchanged_names
     };
-    return keep_config_unchanged; 
+    return keep_config_unchanged;
 }
 
 Argument *indent_init(void) {
@@ -148,7 +148,6 @@ Argument *sort_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Alphanumerically sort keys in output",
         .data.optional.names = sort_names
-        
     };
     return sort;
 }
@@ -165,7 +164,6 @@ Argument *preserve_env_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Keep current user environment block",
         .data.optional.names = preserve_env_names
-        
     };
     return preserve_env;
 }
@@ -178,8 +176,7 @@ Argument *config_init(void) {
         .help = "Config file(s), separated by colon. Using .config.yaml in KAS_WORK_DIR if none is specified.",
         .nargs = 1,
         .required = false,
-        .data.positional.name = "config" 
+        .data.positional.name = "config"
     };
-    
     return config;
 }

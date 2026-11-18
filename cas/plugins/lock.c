@@ -9,7 +9,7 @@ Parser *lock_parser_init(void) {
     dlist_push_back(lock_parser->options, indent_init());
     dlist_push_back(lock_parser->options, sort_init());
     dlist_push_back(lock_parser->arguments, config_init());
-    
+
     return lock_parser;
 }
 

@@ -31,11 +31,11 @@ typedef struct {
 typedef struct {
     ArgType         type;
     ArgValueType    value_type;
-    
+
     const char      *dest;
     const char      *help;
 
-    const char      *metavar;
+    const char      **metavar;
 
     int             nargs;
     bool            required;

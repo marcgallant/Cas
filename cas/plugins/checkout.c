@@ -8,6 +8,6 @@ Parser *checkout_parser_init(void) {
     dlist_push_back(checkout_parser->options, update_init());
 
     dlist_push_back(checkout_parser->arguments, config_init());
-    
+
     return checkout_parser;
 }

@@ -9,7 +9,7 @@ Parser *for_all_repos_parser_init(void) {
     dlist_push_back(for_all_repos_parser->options, preserve_env_init());
     dlist_push_back(for_all_repos_parser->options, keep_config_unchanged_init());
     dlist_push_back(for_all_repos_parser->arguments, config_init());
-    
+
     Argument *command = calloc(1, sizeof(Argument));
     *command = (Argument) {
         .type = ARG_POSITIONAL,
@@ -19,7 +19,7 @@ Parser *for_all_repos_parser_init(void) {
         .required = true,
         .data.positional.name = "command"
     };
-    dlist_push_back(for_all_repos_parser->arguments, command); 
-    
+    dlist_push_back(for_all_repos_parser->arguments, command);
+
     return for_all_repos_parser;
 }

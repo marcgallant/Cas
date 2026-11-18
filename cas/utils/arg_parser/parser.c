@@ -13,7 +13,7 @@ Parser *parser_init(const char *prog, const char *description) {
     parser->arguments = dlist_init();
     parser->options = dlist_init();
 
-    return parser;    
+    return parser;
 }
 
 Subparser parser_add_subparser(Parser *parser, const char *help) {
@@ -24,7 +24,7 @@ Subparser parser_add_subparser(Parser *parser, const char *help) {
         .data.subparser.parsers = dlist_init()
     };
     dlist_push_back(parser->arguments, subparser);
-    return subparser->data.subparser; 
+    return subparser->data.subparser;
 };
 
 void subparser_destroy(Subparser parser) {
@@ -40,7 +40,7 @@ void subparser_destroy(Subparser parser) {
     free(list);
 }
 
-void print_optional(Argument *optional) {
+void optional_print_help(Argument *optional) {
     int n = 0;
     n += printf("  ");
 
@@ -59,7 +59,7 @@ void print_optional(Argument *optional) {
     if (optional->choices) {
         n += printf(YELLOW BOLD " {") - 5 - 4;
         for (size_t i = 0; optional->choices[i]; i++) {
-            n += printf("%s", optional->choices[i]);               
+            n += printf("%s", optional->choices[i]);
 
             if (optional->choices[i + 1])
                 n += printf(",");
@@ -67,6 +67,8 @@ void print_optional(Argument *optional) {
 
         n += printf("}" RESET) - 4;
     }
+
+    //TODO metavar
 
     if (n > 24) {
         puts("");
@@ -76,39 +78,114 @@ void print_optional(Argument *optional) {
     printf("%*s%s\n", 24 - n, "", optional->help);
 }
 
-void print_positional(Argument *positional) {
+void positional_print_help(Argument *positional) {
     (void)positional;
     //TODO
 }
 
-void print_subparser(Argument *subparser) {
+void subparser_print_help(Argument *subparser) {
     (void)subparser;
     //TODO
 }
 
-void print_arguments(struct dlist *arguments) {
+void arguments_print_help(struct dlist *arguments) {
     if (!arguments || arguments->size == 0) return;
+
+    //TODO
 
     struct dlist_item *tmp = arguments->head;
     while (tmp) {
         Argument *arg= tmp->data;
         if (arg->type == ARG_POSITIONAL)
-            print_positional(arg);
+            positional_print_help(arg);
         else
-            print_subparser(arg);
+            subparser_print_help(arg);
 
         tmp = tmp->next;
     }
 }
 
-void print_options(struct dlist *options) {
+void options_print_help(struct dlist *options) {
     if (!options || options->size == 0) return;
 
-    puts(BLUE BOLD "options:\n" RESET);
+    puts(BLUE BOLD "options:" RESET);
 
     struct dlist_item *tmp = options->head;
     while (tmp) {
-        print_optional(tmp->data);
+        optional_print_help(tmp->data);
+        tmp = tmp->next;
+    }
+}
+
+void optional_print_usage(Argument *optional) {
+    printf("[");
+    const char **names = optional->data.optional.names;
+
+    if (names[0][1] == '-')
+        printf(CYAN "%s" RESET, names[0]);
+    else
+        printf(GREEN "%s" RESET, names[0]);
+
+    if (optional->choices) {
+        printf(YELLOW " {");
+        for (size_t i = 0; optional->choices[i]; i++) {
+            printf("%s", optional->choices[i]);
+
+            if (optional->choices[i + 1])
+                printf(",");
+        }
+
+        printf("}" RESET);
+    }
+
+    //TODO metavar
+
+    printf("]");
+}
+
+void positional_print_usage(Argument *positional) {
+    //TODO
+    printf(GREEN);
+    if (!positional->required)
+        printf("[");
+
+    const char *name = positional->data.positional.name;
+    printf(GREEN "%s", name);
+
+    if (!positional->required)
+        printf("]");
+
+    printf(RESET);
+}
+
+void subparser_print_usage(Argument *subparser) {
+    //TODO
+    (void)subparser;
+}
+
+void arguments_print_usage(struct dlist *arguments) {
+    if (!arguments || arguments->size == 0) return;
+
+    struct dlist_item *tmp = arguments->head;
+    while (tmp) {
+        printf(" ");
+        Argument *arg= tmp->data;
+        if (arg->type == ARG_POSITIONAL)
+            positional_print_usage(arg);
+        else
+            subparser_print_usage(arg);
+
+        tmp = tmp->next;
+    }
+}
+
+void options_print_usage(struct dlist *options) {
+    if (!options || options->size == 0) return;
+
+    struct dlist_item *tmp = options->head;
+    while (tmp) {
+        printf(" ");
+        optional_print_usage(tmp->data);
         tmp = tmp->next;
     }
 }
@@ -117,17 +194,20 @@ void parser_print_usage(Parser *parser) {
     if (!parser) return;
 
     printf(BLUE BOLD "usage: " MAGENTA "%s" RESET, parser->prog);
-    //TODO
+
+    options_print_usage(parser->options);
+    arguments_print_usage(parser->arguments);
+
     printf("\n");
 }
 
 void parser_print_help(Parser *parser) {
     parser_print_usage(parser);
- 
-    printf("%s\n\n", parser->description);
 
-    print_arguments(parser->arguments);
-    print_options(parser->options);
+    printf("\n%s\n\n", parser->description);
+
+    arguments_print_help(parser->arguments);
+    options_print_help(parser->options);
 }
 
 void parser_destroy(Parser *parser) {

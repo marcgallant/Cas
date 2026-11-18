@@ -8,7 +8,7 @@ Parser *shell_parser_init() {
     dlist_push_back(shell_parser->options, update_init());
     dlist_push_back(shell_parser->options, preserve_env_init());
     dlist_push_back(shell_parser->options, keep_config_unchanged_init());
- 
+
     static const char *command2_names[] = {
         "-c"
         "--command",
@@ -28,7 +28,6 @@ Parser *shell_parser_init() {
     dlist_push_back(shell_parser->options, command2);
 
     dlist_push_back(shell_parser->arguments, config_init());
-    
 
     return shell_parser;
 }

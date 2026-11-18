@@ -11,9 +11,9 @@ Parser *menu_parser_init(void) {
         .help = "Kconfig file",
         .nargs = 1,
         .required = false,
-        .data.positional.name = "kconfig" 
+        .data.positional.name = "kconfig"
     };
     dlist_push_back(menu_parser->arguments, kconfig);
-    
+
     return menu_parser;
 }

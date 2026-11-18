@@ -8,7 +8,7 @@ Parser *dump_parser_init(void) {
     dlist_push_back(dump_parser->options, update_init());
     dlist_push_back(dump_parser->options, indent_init());
     dlist_push_back(dump_parser->options, sort_init());
-        
+
     static const char *format2_names[] = {
         "--format",
         NULL
@@ -19,7 +19,7 @@ Parser *dump_parser_init(void) {
         "json",
         NULL
     };
-    
+
     Argument *format2 = calloc(1, sizeof(Argument));
     *format2 = (Argument) {
         .type = ARG_OPTIONAL,
@@ -43,7 +43,6 @@ Parser *dump_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Replace floating refs with exact SHAs. Overrides are removed",
         .data.optional.names = resolve_refs_names
-        
     };
     dlist_push_back(dump_parser->options, resolve_refs);
 
@@ -69,7 +68,7 @@ Parser *dump_parser_init(void) {
     *resolve_env = (Argument) {
         .type = ARG_OPTIONAL,
         .help = "Set env defaults to captured env value",
-        .data.optional.names = resolve_env_names 
+        .data.optional.names = resolve_env_names
     };
     dlist_push_back(dump_parser->options, resolve_env);
 
@@ -86,6 +85,5 @@ Parser *dump_parser_init(void) {
     };
     dlist_push_back(dump_parser->options, lock);
     dlist_push_back(dump_parser->arguments, config_init());
-    
     return dump_parser;
 }

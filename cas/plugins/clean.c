@@ -5,7 +5,7 @@ Parser *clean_parser_init(void) {
     dlist_push_back(clean_parser->options, help_init());
     dlist_push_back(clean_parser->options, dry_run_init());
     dlist_push_back(clean_parser->options, isar_init());
-    dlist_push_back(clean_parser->arguments, config_init()); 
+    dlist_push_back(clean_parser->arguments, config_init());
     return clean_parser;
 }
 
@@ -35,7 +35,7 @@ Parser *purge_parser_init(void) {
     dlist_push_back(purge_parser->options, dry_run_init());
     dlist_push_back(purge_parser->options, isar_init());
     dlist_push_back(purge_parser->arguments, config_init());
-    
+
     static const char *preserve_repo_refs_names[] = {
         "--preserve-repo-refs",
         NULL
@@ -46,11 +46,9 @@ Parser *purge_parser_init(void) {
         .type = ARG_OPTIONAL,
         .help = "Do not remove the reference repositories",
         .data.optional.names = preserve_repo_refs_names
-        
+
     };
     dlist_push_back(purge_parser->options, preserve_repo_refs);
 
     return purge_parser;
 }
-
-

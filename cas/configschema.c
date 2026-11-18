@@ -43,7 +43,7 @@ int load_schema() {
 
     const cJSON *version_node = cJSON_GetArrayItem(list, 1);
     if (!cJSON_IsObject(version_node)) return 0;
- 
+
     const cJSON *maximum = cJSON_GetObjectItemCaseSensitive(version_node, "maximum");
     if (!cJSON_IsNumber(maximum)) return 0;
 

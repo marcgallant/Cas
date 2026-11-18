@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <arg_parser/parser.h>
 
@@ -20,7 +21,7 @@ Parser *kas_parser_init(void) {
         .data.optional.names = version_names
     };
     dlist_push_back(parser->options, version);
- 
+
     static const char *log_level_names[] = {
         "-l",
         "--log-level",
@@ -35,7 +36,7 @@ Parser *kas_parser_init(void) {
         "critical",
         NULL
     };
-    
+
     Argument *log_level = calloc(1, sizeof(Argument));
     *log_level = (Argument) {
         .type = ARG_OPTIONAL,
@@ -45,7 +46,7 @@ Parser *kas_parser_init(void) {
         .required = false,
         .default_value.string = "info",
         .choices = log_level_choices,
-        .data.optional.names = log_level_names 
+        .data.optional.names = log_level_names
     };
     dlist_push_back(parser->options, log_level);
 
@@ -68,9 +69,9 @@ Parser *kas_parser_init(void) {
 }
 
 int main(void) {
-    Parser *parser = kas_parser_init();
+    Parser *parser = build_parser_init();
 
-    parser_print_help(parser);    
+    parser_print_help(parser);
 
     parser_destroy(parser);
 
