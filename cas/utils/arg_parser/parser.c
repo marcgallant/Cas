@@ -139,6 +139,8 @@ void subparser_print_help(Argument *subparser) {
 void arguments_print_help(struct dlist *arguments) {
     if (!arguments || arguments->size == 0) return;
 
+    puts(BLUE BOLD "positional arguments:" RESET);
+
     struct dlist_item *tmp = arguments->head;
     while (tmp) {
         Argument *arg= tmp->data;
@@ -219,17 +221,19 @@ void positional_print_usage(Argument *positional) {
     if (!positional->required)
         printf("[");
 
+    const char *name = positional->data.positional.name;
+
     if (positional->nargs > 0) {
         for (int i = 0; i < positional->nargs; i++) {
-            printf("%s", positional->data.positional.name);
+            printf("%s", name);
         }
     } else if (positional->nargs == NARGS_OPTIONAL) {
-        printf( "[%s]", positional->data.positional.name);
+        printf( "[%s]", name);
     } else if (positional->nargs == NARGS_ONE_OR_MORE) {
-        printf( "%s [%s ...]", positional->data.positional.name, positional->data.positional.name);
+        printf( "%s [%s ...]", name, name);
 
     } else if (positional->nargs == NARGS_ZERO_OR_MORE) {
-        printf( "%s ...", positional->data.positional.name);
+        printf( "%s ...", name);
     }
 
     if (!positional->required)
@@ -239,8 +243,21 @@ void positional_print_usage(Argument *positional) {
 }
 
 void subparser_print_usage(Argument *subparser) {
-    //TODO
-    (void)subparser;
+    printf(GREEN);
+    printf("{");
+    struct dlist_item *tmp = subparser->data.subparser.parsers->head;
+    while (tmp) {
+        Parser *parser = tmp->data;
+        printf("%s", parser->prog);
+
+        if (tmp->next)
+            printf(",");
+
+        tmp = tmp->next;
+    }
+
+    printf("}");
+    printf(RESET);
 }
 
 void arguments_print_usage(struct dlist *arguments) {
@@ -287,6 +304,7 @@ void parser_print_help(Parser *parser) {
     printf("\n%s\n\n", parser->description);
 
     arguments_print_help(parser->arguments);
+    puts("");
     options_print_help(parser->options);
 }
 
