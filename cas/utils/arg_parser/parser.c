@@ -5,13 +5,18 @@
 
 #include <colors.h>
 
+#include "formatter.h"
+
 Parser *parser_init(const char *prog, const char *description) {
     Parser *parser = calloc(1, sizeof(Parser));
+
     if (prog) parser->prog = prog;
     if (description) parser->description = description;
 
     parser->arguments = dlist_init();
     parser->options = dlist_init();
+
+    parser->formatter = formatter_init();
 
     return parser;
 }
@@ -370,6 +375,8 @@ void parser_destroy(Parser *parser) {
         free(tmp);
     }
     free(list);
+
+    free(parser->formatter);
 
     free(parser);
 }

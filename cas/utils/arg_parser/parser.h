@@ -4,6 +4,7 @@
 #include <dlist/dlist.h>
 
 #include "argument.h"
+#include "formatter.h"
 
 typedef struct {
     const char      *prog;
@@ -11,6 +12,8 @@ typedef struct {
 
     struct dlist    *arguments;
     struct dlist    *options;
+
+    Formatter *formatter;
 } Parser;
 
 Parser *parser_init(const char *prog, const char *description);

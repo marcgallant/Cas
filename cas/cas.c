@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include <arg_parser/parser.h>
-
 #include "plugins/plugins.h"
 
 Parser *kas_parser_init(void) {
