@@ -6,6 +6,8 @@ SRC = utils/dlist/dlist.c \
       utils/arg_parser/parser.c \
       utils/arg_parser/formatter.c \
       utils/cJSON/cJSON.c \
+      utils/hash_set/hash.c \
+      utils/hash_set/hash_set.c \
       configschema.c \
       plugins/build.c \
       plugins/checkout.c \
@@ -16,6 +18,7 @@ SRC = utils/dlist/dlist.c \
       plugins/lock.c \
       plugins/menu.c \
       plugins/shell.c \
+      context.c \
       cas.c
 
 OBJ = $(SRC:.c=.o)
