@@ -9,6 +9,7 @@ SRC = utils/dlist/dlist.c \
       utils/hash/hash.c \
       utils/hash_set/hash_set.c \
       utils/hash_map/hash_map.c \
+      utils/distro/distro.c \
       configschema.c \
       plugins/build.c \
       plugins/checkout.c \

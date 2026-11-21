@@ -22,6 +22,16 @@ bool is_digit_string(const char *str)
     return true;
 }
 
+void setup_initial_environ(Context *context) {
+    //TODO
+    context->environ = hash_map_init(8);
+
+}
+
+void check_container_call(void) {
+    //TODO
+}
+
 Context *context_init(void) {
     Context *context = calloc(1, sizeof(Context));
 

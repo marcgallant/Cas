@@ -15,7 +15,7 @@ struct hash_set *hash_set_init(size_t size)
     if (!res)
         return NULL;
 
-    res->data = calloc(size, sizeof(struct pair_list *));
+    res->data = calloc(size, sizeof(struct list *));
     if (!res->data)
     {
         free(res);
@@ -33,7 +33,7 @@ bool hash_set_insert(struct hash_set *hash_set, const char *key)
         return false;
 
     size_t h = hash(key) % hash_set->size;
-    struct pair_list *tmp = hash_set->data[h];
+    struct list *tmp = hash_set->data[h];
 
     while (tmp)
     {
@@ -43,7 +43,7 @@ bool hash_set_insert(struct hash_set *hash_set, const char *key)
         tmp = tmp->next;
     }
 
-    struct pair_list *elt = malloc(sizeof(struct pair_list));
+    struct list *elt = malloc(sizeof(struct list));
     if (!elt)
         return false;
 
@@ -62,7 +62,7 @@ bool hash_set_contains(const struct hash_set *hash_set, const char *key)
 
     size_t h = hash(key) % hash_set->size;
 
-    struct pair_list *tmp = hash_set->data[h];
+    struct list *tmp = hash_set->data[h];
 
     while (tmp)
     {
@@ -82,8 +82,8 @@ bool hash_set_remove(struct hash_set *hash_set, const char *key)
 
     size_t h = hash(key) % hash_set->size;
 
-    struct pair_list *prev = NULL;
-    struct pair_list *tmp = hash_set->data[h];
+    struct list *prev = NULL;
+    struct list *tmp = hash_set->data[h];
 
     while (tmp)
     {
@@ -114,7 +114,7 @@ void hash_set_destroy(struct hash_set *hash_set)
     {
         while (hash_set->data[i])
         {
-            struct pair_list *tmp = hash_set->data[i]->next;
+            struct list *tmp = hash_set->data[i]->next;
 
             free(hash_set->data[i]);
 
