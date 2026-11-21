@@ -93,19 +93,16 @@ static void parse_line(Distro *distro, char *line)
 #undef SET_FIELD
 }
 
-Distro *distro_initvoid()
-{
-    Distro *distro = calloc(1, sizeof(Distro));
-    if (!distro)
-        return NULL;
+void distro_load(Distro *distro) {
 
+    memset(distro, 0, sizeof(*distro));
     FILE *fp = fopen("/etc/os-release", "r");
 
     if (!fp)
         fp = fopen("/usr/lib/os-release", "r");
 
     if (!fp)
-        return NULL;
+        return;
 
     char line[LINE_SIZE];
 
@@ -113,6 +110,4 @@ Distro *distro_initvoid()
         parse_line(distro, line);
 
     fclose(fp);
-
-    return distro;
 }

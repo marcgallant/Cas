@@ -6,26 +6,101 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/param.h>
 
-bool is_digit_string(const char *str)
-{
+#include <distro/distro.h>
+
+char *to_lower_string(const char *str) {
+    if (*str == '\0')
+        return NULL;
+
+    char *str_lower = calloc(strlen(str), sizeof(char));
+
+    size_t i = 0;
+    while (str[i]) {
+        str_lower[i] = tolower(str[i]);
+        i++;
+    }
+
+    return str_lower;
+}
+
+bool is_digit_string(const char *str) {
     if (*str == '\0')
         return false;
 
-    while (*str) {
-        if (!isdigit((unsigned char)*str))
+    size_t i = 0;
+    while (str[i]) {
+        if (!isdigit(str[i]))
             return false;
-        str++;
+        i++;
     }
 
     return true;
 }
 
-void setup_initial_environ(Context *context) {
-    //TODO
-    context->environ = hash_map_init(8);
+typedef enum {
+    GITHUB_ACTIONS,
+    GITLAB_CI,
+    VSCODE_REMOTE_CONTAINERS,
+    NONE
+} ManagedEnvironment;
 
+ManagedEnvironment get_managed_env(void) {
+    char *tmp;
+    if ((tmp = getenv("GITHUB_ACTIONS")) && strcmp(tmp, "true") == 0)
+        return GITHUB_ACTIONS;
+    else if ((tmp = getenv("GITHUB_CI")) && strcmp(tmp, "true") == 0)
+        return GITLAB_CI;
+    else if ((tmp = getenv("REMOTE_CONTAINERS")) && strcmp(tmp, "true") == 0)
+        return VSCODE_REMOTE_CONTAINERS;
+
+    return NONE;
+}
+
+extern char **environ;
+
+void setup_initial_environ(Context *context) {
+    context->environ = hash_map_init(8);
+    Distro distro;
+    distro_load(&distro);
+    char *distro_name = to_lower_string(distro.id_like);
+
+    if (strcmp(distro_name, "fedora") == 0 ||
+        strcmp(distro_name, "suse") == 0 ||
+        strcmp(distro_name, "opensuse") == 0) {
+        hash_map_insert(context->environ, "LC_ALL", "en_US.utf8", NULL);
+        hash_map_insert(context->environ, "LANG", "en_US.utf8", NULL);
+        hash_map_insert(context->environ, "LANGUAGE", "en_US", NULL);
+    }
+    else if (strcmp(distro_name, "debian") == 0 ||
+             strcmp(distro_name, "ubuntu") == 0 ||
+             strcmp(distro_name, "gentoo") == 0) {
+        hash_map_insert(context->environ, "LC_ALL", "en_US.UTF-8", NULL);
+        hash_map_insert(context->environ, "LANG", "en_US.UTF-8", NULL);
+        hash_map_insert(context->environ, "LANGUAGE", "en_US:en", NULL);
+    }
+    else {} //TODO
+
+    free(distro_name);
+
+    char *keys[7] = { "http_proxy", "https_proxy", "ftp_proxy", "no_proxy",
+                  "SSH_AUTH_SOCK", "BB_NUMBER_THREADS", "PARALLEL_MAKE" };
+    for (size_t i = 0; i < 7; i++) {
+        char *val = getenv(keys[i]);
+        if (val)
+            hash_map_insert(context->environ, keys[i], val, NULL);
+    }
+
+    if (get_managed_env() == VSCODE_REMOTE_CONTAINERS) {
+        char **tmp = environ;
+        while (*tmp) {
+            if (strcmp(*tmp, "REMOTE_CONTAINERS_") == 0)
+                hash_map_insert(context->environ, *tmp, getenv(*tmp), NULL);
+            tmp++;
+        }
+    }
 }
 
 void check_container_call(void) {
@@ -66,6 +141,8 @@ Context *context_init(void) {
 
     context->repo_clone_depth = MAX(atoi(clone_depth), 0);
 
+    setup_initial_environ(context);
+
     context->managed_paths = hash_set_init(8);
 
     if (getenv("KAS_BUILD_DIR") == NULL) {
@@ -76,6 +153,7 @@ Context *context_init(void) {
 }
 
 void context_destroy(Context *context) {
+    hash_map_destroy(context->environ);
     hash_set_destroy(context->managed_paths);
     free(context);
 }
