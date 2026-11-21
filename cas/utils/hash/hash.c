@@ -1,9 +1,6 @@
-#include <stddef.h>
+#include "hash.h"
 
-#include "hash_set.h"
-
-size_t hash(const char *key)
-{
+size_t hash(const char *key) {
     size_t i = 0;
     size_t hash = 0;
 

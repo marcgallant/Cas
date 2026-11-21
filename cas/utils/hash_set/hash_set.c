@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <hash/hash.h>
+
 struct hash_set *hash_set_init(size_t size)
 {
     if (size == 0)
@@ -122,28 +124,4 @@ void hash_set_destroy(struct hash_set *hash_set)
 
     free(hash_set->data);
     free(hash_set);
-}
-
-void hash_set_dump(struct hash_set *hash_set)
-{
-    if (!hash_set)
-        return;
-
-    for (size_t i = 0; i < hash_set->size; i++)
-    {
-        struct pair_list *tmp = hash_set->data[i];
-
-        while (tmp)
-        {
-            printf("%s", tmp->key);
-
-            if (tmp->next)
-                printf(", ");
-
-            tmp = tmp->next;
-        }
-
-        if (hash_set->data[i])
-            printf("\n");
-    }
 }

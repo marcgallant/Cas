@@ -16,15 +16,11 @@ struct hash_set
     size_t size;
 };
 
-size_t hash(const char *str);
-
 struct hash_set *hash_set_init(size_t size);
 
 bool hash_set_insert(struct hash_set *hash_set, const char *key);
 
 void hash_set_destroy(struct hash_set *hash_set);
-
-void hash_set_dump(struct hash_set *hash_set);
 
 bool hash_set_contains(const struct hash_set *hash_set, const char *key);
 
