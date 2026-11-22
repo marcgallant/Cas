@@ -44,9 +44,10 @@ static void print_log(Logger *logger, LogLevel level, const char *message) {
     struct tm *t = localtime(&now);
 
     if (logger->color)
-        printf("%s", colors[level]);
+        fprintf(stderr, "%s", colors[level]);
 
-    printf("%04d-%02d-%02d %02d:%02d:%02d - %-8s - %s\n",
+    fprintf(stderr,
+           "%04d-%02d-%02d %02d:%02d:%02d - %-8s - %s\n",
            t->tm_year + 1900,
            t->tm_mon + 1,
            t->tm_mday,
