@@ -1,11 +1,15 @@
 #include "distro.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 #define LINE_SIZE 4096
+
+static Distro distro;
+static bool initialized = false;
 
 static char *trim(char *str)
 {
@@ -110,4 +114,12 @@ void distro_load(Distro *distro) {
         parse_line(distro, line);
 
     fclose(fp);
+}
+
+Distro distro_get(void) {
+    if (!initialized) {
+        distro_load(&distro);
+        initialized = true;
+    }
+    return distro;
 }

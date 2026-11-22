@@ -58,8 +58,7 @@ static ManagedEnvironment get_managed_env(void) {
 
 static void setup_initial_environ(Context *context) {
     context->environ = hash_map_init(8);
-    Distro distro;
-    distro_load(&distro);
+    Distro distro = distro_get();
 
     char *distro_name = to_lower_string(distro.id_like);
 

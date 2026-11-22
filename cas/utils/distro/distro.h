@@ -20,6 +20,6 @@ typedef struct {
     char architecture[DISTRO_FIELD_SIZE];
 } Distro;
 
-void distro_load(Distro *distro);
+Distro distro_get(void);
 
 #endif
