@@ -11,6 +11,8 @@
 
 #include <distro/distro.h>
 
+#include "version.h"
+
 char *to_lower_string(const char *str) {
     if (*str == '\0')
         return NULL;
@@ -65,6 +67,7 @@ void setup_initial_environ(Context *context) {
     context->environ = hash_map_init(8);
     Distro distro;
     distro_load(&distro);
+
     char *distro_name = to_lower_string(distro.id_like);
 
     if (strcmp(distro_name, "fedora") == 0 ||
@@ -104,7 +107,10 @@ void setup_initial_environ(Context *context) {
 }
 
 void check_container_call(void) {
-    //TODO
+    char *container_v = getenv("KAS_CONTAINER_SCRIPT_VERSION");
+    if (!container_v)
+        return;
+    if (strcmp(container_v, VERSION_STRING) != 0) {} //TODO
 }
 
 Context *context_init(void) {
@@ -142,6 +148,10 @@ Context *context_init(void) {
     context->repo_clone_depth = MAX(atoi(clone_depth), 0);
 
     setup_initial_environ(context);
+    check_container_call();
+    context->keyhandler = hash_map_init(8);
+    context->config = NULL;
+    //self.args = args
 
     context->managed_paths = hash_set_init(8);
 
@@ -157,12 +167,3 @@ void context_destroy(Context *context) {
     hash_set_destroy(context->managed_paths);
     free(context);
 }
-
-/*
-self.setup_initial_environ()
-self.check_container_call()
-# Register the paths that kas created and exclusively owns
-self.keyhandler = {}
-self.config = None
-self.args = args
-*/

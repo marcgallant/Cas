@@ -10,6 +10,8 @@ typedef struct {
     const char *kas_repo_ref_dir;
     struct hash_map *environ;
     struct hash_set *managed_paths;
+    struct hash_map *keyhandler;
+    void *config;
     int repo_clone_depth;
 } Context;
 
