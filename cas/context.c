@@ -15,6 +15,9 @@
 
 extern char **environ;
 
+static Context *context;
+static bool initialized = false;
+
 static char *to_lower_string(const char *str) {
     if (*str == '\0')
         return NULL;
@@ -44,16 +47,16 @@ static bool is_digit_string(const char *str) {
     return true;
 }
 
-static ManagedEnvironment get_managed_env(void) {
+void get_managed_env(Context *context) {
     char *tmp;
     if ((tmp = getenv("GITHUB_ACTIONS")) && strcmp(tmp, "true") == 0)
-        return GITHUB_ACTIONS;
+        context->managed_env = GITHUB_ACTIONS;
     else if ((tmp = getenv("GITHUB_CI")) && strcmp(tmp, "true") == 0)
-        return GITLAB_CI;
+        context->managed_env = GITLAB_CI;
     else if ((tmp = getenv("REMOTE_CONTAINERS")) && strcmp(tmp, "true") == 0)
-        return VSCODE_REMOTE_CONTAINERS;
-
-    return NONE;
+        context->managed_env = VSCODE_REMOTE_CONTAINERS;
+    else
+        context->managed_env = NONE;
 }
 
 static void setup_initial_environ(Context *context) {
@@ -88,7 +91,8 @@ static void setup_initial_environ(Context *context) {
             hash_map_insert(context->environ, keys[i], val, NULL);
     }
 
-    if (get_managed_env() == VSCODE_REMOTE_CONTAINERS) {
+    get_managed_env(context);
+    if (context->managed_env == VSCODE_REMOTE_CONTAINERS) {
         char **tmp = environ;
         while (*tmp) {
             if (strcmp(*tmp, "REMOTE_CONTAINERS_") == 0)
@@ -154,8 +158,18 @@ Context *context_init(void) {
     return context;
 }
 
+Context *get_context(void) {
+    if (!initialized) {
+        context = context_init();
+        initialized = true;
+    }
+    return context;
+}
+
 void context_destroy(Context *context) {
     hash_map_destroy(context->environ);
     hash_set_destroy(context->managed_paths);
+    hash_map_destroy(context->keyhandler);
+
     free(context);
 }

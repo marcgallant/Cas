@@ -1,5 +1,6 @@
 #include "logger.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -9,6 +10,9 @@
 
 static char *level_name[] = { "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL" };
 static char *colors[] = { RESET, RESET, BOLD YELLOW, BOLD RED, BOLD RED };
+
+static Logger *logger;
+static bool initialized = false;
 
 static bool color_supported(void)
 {
@@ -26,18 +30,26 @@ static bool color_supported(void)
     return true;
 }
 
-Logger *logger_init(const char *name) {
+static Logger *logger_init() {
     Logger *logger = calloc(1, sizeof(Logger));
     if (!logger) return NULL;
 
-    logger->name = name ? name : "root" ;
     logger->level = DEFAULT_LOG_LEVEL;
     logger->color = color_supported();
 
     return logger;
 }
 
-static void print_log(Logger *logger, LogLevel level, const char *message) {
+Logger *get_logger(void) {
+    if (!initialized) {
+        logger = logger_init(NULL);
+        initialized = true;
+    }
+    return logger;
+}
+
+static void print_log(LogLevel level, const char *message) {
+    Logger *logger = get_logger();
     if (level < logger->level) return;
 
     time_t now = time(NULL);
@@ -58,22 +70,26 @@ static void print_log(Logger *logger, LogLevel level, const char *message) {
            message);
 }
 
-void log_debug(Logger *logger, const char *message) {
-    print_log(logger, LOG_DEBUG, message);
+void log_debug(const char *message) {
+    print_log(LOG_DEBUG, message);
 }
 
-void log_info(Logger *logger, const char *message) {
-    print_log(logger, LOG_INFO, message);
+void log_info(const char *message) {
+    print_log(LOG_INFO, message);
 }
 
-void log_warning(Logger *logger, const char *message) {
-    print_log(logger, LOG_WARNING, message);
+void log_warning(const char *message) {
+    print_log(LOG_WARNING, message);
 }
 
-void log_error(Logger *logger, const char *message) {
-    print_log(logger, LOG_ERROR, message);
+void log_error(const char *message) {
+    print_log(LOG_ERROR, message);
 }
 
-void log_critical(Logger *logger, const char *message) {
-    print_log(logger, LOG_CRITICAL, message);
+void log_critical(const char *message) {
+    print_log(LOG_CRITICAL, message);
+}
+
+void logger_destroy(Logger *logger) {
+    free(logger);
 }

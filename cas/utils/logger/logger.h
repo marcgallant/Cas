@@ -17,21 +17,22 @@ enum {
 #define DEFAULT_LOG_LEVEL LOG_INFO
 
 typedef struct {
-    const char *name;
     LogLevel level;
     bool color;
 } Logger; //TODO: add handler and formatter
 
-Logger *logger_init(const char *name);
+Logger *get_logger();
 
-void log_debug(Logger *logger, const char *message);
+void log_debug(const char *message);
 
-void log_info(Logger *logger, const char *message);
+void log_info(const char *message);
 
-void log_warning(Logger *logger, const char *message);
+void log_warning(const char *message);
 
-void log_error(Logger *logger, const char *message);
+void log_error(const char *message);
 
-void log_critical(Logger *logger, const char *message);
+void log_critical(const char *message);
+
+void logger_destroy(Logger *logger);
 
 #endif /* ! LOGGER_H */

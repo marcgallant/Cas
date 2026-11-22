@@ -20,9 +20,10 @@ typedef struct {
     struct hash_map *keyhandler;
     void *config;
     int repo_clone_depth;
+    ManagedEnvironment managed_env;
 } Context;
 
-Context* context_init(void);
+Context *get_context(void);
 
 void context_destroy(Context *context);
 
