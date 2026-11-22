@@ -1,20 +1,26 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-typedef enum {
+#include <stdbool.h>
+#include <stdint.h>
+
+typedef uint8_t LogLevel;
+
+enum {
     LOG_DEBUG,
     LOG_INFO,
     LOG_WARNING,
     LOG_ERROR,
     LOG_CRITICAL
-} LogLevel;
+};
 
 #define DEFAULT_LOG_LEVEL LOG_INFO
 
 typedef struct {
     const char *name;
     LogLevel level;
-} Logger;
+    bool color;
+} Logger; //TODO: add handler and formatter
 
 Logger *logger_init(const char *name);
 

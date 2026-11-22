@@ -1,8 +1,16 @@
+#define _GNU_SOURCE
+
+#include <libgen.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 #include <arg_parser/parser.h>
+#include <distro/distro.h>
+#include <logger/logger.h>
+
+#include "context.h"
 #include "plugins/plugins.h"
+#include "version.h"
 
 Parser *kas_parser_init(void) {
     Parser *parser = parser_init("kas", "kas - setup tool for bitbake based project");
@@ -67,12 +75,32 @@ Parser *kas_parser_init(void) {
     return parser;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    (void)argc;
+
     Parser *parser = kas_parser_init();
 
     parser_print_help(parser);
 
     parser_destroy(parser);
+
+    Context *context = context_init();
+
+    context_destroy(context);
+
+    Logger *logger = logger_init(NULL);
+    logger->level = LOG_DEBUG;
+
+    Distro distro = distro_get();
+
+    char *message;
+    asprintf(&message, "%s %s started on %s %s", basename(argv[0]), VERSION_STRING, distro.name, distro.version_id);
+
+    log_debug(logger, message);
+    log_info(logger, message);
+    log_warning(logger, message);
+    log_error(logger, message);
+    log_critical(logger, message);
 
     return 0;
 }
