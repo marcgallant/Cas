@@ -13,7 +13,9 @@
 
 #include "version.h"
 
-char *to_lower_string(const char *str) {
+extern char **environ;
+
+static char *to_lower_string(const char *str) {
     if (*str == '\0')
         return NULL;
 
@@ -28,7 +30,7 @@ char *to_lower_string(const char *str) {
     return str_lower;
 }
 
-bool is_digit_string(const char *str) {
+static bool is_digit_string(const char *str) {
     if (*str == '\0')
         return false;
 
@@ -42,14 +44,7 @@ bool is_digit_string(const char *str) {
     return true;
 }
 
-typedef enum {
-    GITHUB_ACTIONS,
-    GITLAB_CI,
-    VSCODE_REMOTE_CONTAINERS,
-    NONE
-} ManagedEnvironment;
-
-ManagedEnvironment get_managed_env(void) {
+static ManagedEnvironment get_managed_env(void) {
     char *tmp;
     if ((tmp = getenv("GITHUB_ACTIONS")) && strcmp(tmp, "true") == 0)
         return GITHUB_ACTIONS;
@@ -61,9 +56,7 @@ ManagedEnvironment get_managed_env(void) {
     return NONE;
 }
 
-extern char **environ;
-
-void setup_initial_environ(Context *context) {
+static void setup_initial_environ(Context *context) {
     context->environ = hash_map_init(8);
     Distro distro;
     distro_load(&distro);
@@ -106,7 +99,7 @@ void setup_initial_environ(Context *context) {
     }
 }
 
-void check_container_call(void) {
+static void check_container_call(void) {
     char *container_v = getenv("KAS_CONTAINER_SCRIPT_VERSION");
     if (!container_v)
         return;

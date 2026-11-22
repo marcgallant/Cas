@@ -4,6 +4,13 @@
 #include <hash_map/hash_map.h>
 #include <hash_set/hash_set.h>
 
+typedef enum {
+    GITHUB_ACTIONS,
+    GITLAB_CI,
+    VSCODE_REMOTE_CONTAINERS,
+    NONE
+} ManagedEnvironment;
+
 typedef struct {
     const char *kas_work_dir;
     const char *kas_build_dir;
@@ -16,8 +23,6 @@ typedef struct {
 } Context;
 
 Context* context_init(void);
-
-void setup_initial_environ(Context *context);
 
 void context_destroy(Context *context);
 
