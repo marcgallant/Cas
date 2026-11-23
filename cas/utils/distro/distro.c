@@ -116,10 +116,10 @@ void distro_load(Distro *distro) {
     fclose(fp);
 }
 
-Distro distro_get(void) {
+Distro *distro_get(void) {
     if (!initialized) {
         distro_load(&distro);
         initialized = true;
     }
-    return distro;
+    return &distro;
 }
