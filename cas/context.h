@@ -23,8 +23,7 @@ typedef struct {
     ManagedEnvironment managed_env;
 } Context;
 
-Context *get_context(void);
-
-void context_destroy(Context *context);
+Context *context_get(void);
+void context_destroy();
 
 #endif /* ! CONTEXT_H*/

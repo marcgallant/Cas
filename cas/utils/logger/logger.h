@@ -21,7 +21,7 @@ typedef struct {
     bool color;
 } Logger; //TODO: add handler and formatter
 
-Logger *get_logger();
+Logger *logger_get();
 
 void log_debug(const char *message);
 

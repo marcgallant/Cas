@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -11,7 +12,7 @@
 static char *level_name[] = { "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL" };
 static char *colors[] = { RESET, RESET, BOLD YELLOW, BOLD RED, BOLD RED };
 
-static Logger *logger;
+static Logger logger;
 static bool initialized = false;
 
 static bool color_supported(void)
@@ -30,26 +31,23 @@ static bool color_supported(void)
     return true;
 }
 
-static Logger *logger_init() {
-    Logger *logger = calloc(1, sizeof(Logger));
-    if (!logger) return NULL;
+static void logger_init(void) {
+    memset(&logger, 0, sizeof(Logger));
 
-    logger->level = DEFAULT_LOG_LEVEL;
-    logger->color = color_supported();
-
-    return logger;
+    logger.level = DEFAULT_LOG_LEVEL;
+    logger.color = color_supported();
 }
 
-Logger *get_logger(void) {
+Logger *logger_get(void) {
     if (!initialized) {
-        logger = logger_init(NULL);
+        logger_init();
         initialized = true;
     }
-    return logger;
+    return &logger;
 }
 
 static void print_log(LogLevel level, const char *message) {
-    Logger *logger = get_logger();
+    Logger *logger = logger_get();
     if (level < logger->level) return;
 
     time_t now = time(NULL);

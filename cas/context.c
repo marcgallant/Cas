@@ -15,7 +15,7 @@
 
 extern char **environ;
 
-static Context *context;
+static Context context;
 static bool initialized = false;
 
 static char *to_lower_string(const char *str) {
@@ -47,37 +47,37 @@ static bool is_digit_string(const char *str) {
     return true;
 }
 
-void get_managed_env(Context *context) {
+void get_managed_env() {
     char *tmp;
     if ((tmp = getenv("GITHUB_ACTIONS")) && strcmp(tmp, "true") == 0)
-        context->managed_env = GITHUB_ACTIONS;
+        context.managed_env = GITHUB_ACTIONS;
     else if ((tmp = getenv("GITHUB_CI")) && strcmp(tmp, "true") == 0)
-        context->managed_env = GITLAB_CI;
+        context.managed_env = GITLAB_CI;
     else if ((tmp = getenv("REMOTE_CONTAINERS")) && strcmp(tmp, "true") == 0)
-        context->managed_env = VSCODE_REMOTE_CONTAINERS;
+        context.managed_env = VSCODE_REMOTE_CONTAINERS;
     else
-        context->managed_env = NONE;
+        context.managed_env = NONE;
 }
 
-static void setup_initial_environ(Context *context) {
-    context->environ = hash_map_init(8);
-    Distro distro = distro_get();
+static void setup_initial_environ() {
+    context.environ = hash_map_init(8);
+    Distro *distro = distro_get();
 
-    char *distro_name = to_lower_string(distro.id_like);
+    char *distro_name = to_lower_string(distro->id_like);
 
     if (strcmp(distro_name, "fedora") == 0 ||
         strcmp(distro_name, "suse") == 0 ||
         strcmp(distro_name, "opensuse") == 0) {
-        hash_map_insert(context->environ, "LC_ALL", "en_US.utf8", NULL);
-        hash_map_insert(context->environ, "LANG", "en_US.utf8", NULL);
-        hash_map_insert(context->environ, "LANGUAGE", "en_US", NULL);
+        hash_map_insert(context.environ, "LC_ALL", "en_US.utf8", NULL);
+        hash_map_insert(context.environ, "LANG", "en_US.utf8", NULL);
+        hash_map_insert(context.environ, "LANGUAGE", "en_US", NULL);
     }
     else if (strcmp(distro_name, "debian") == 0 ||
              strcmp(distro_name, "ubuntu") == 0 ||
              strcmp(distro_name, "gentoo") == 0) {
-        hash_map_insert(context->environ, "LC_ALL", "en_US.UTF-8", NULL);
-        hash_map_insert(context->environ, "LANG", "en_US.UTF-8", NULL);
-        hash_map_insert(context->environ, "LANGUAGE", "en_US:en", NULL);
+        hash_map_insert(context.environ, "LC_ALL", "en_US.UTF-8", NULL);
+        hash_map_insert(context.environ, "LANG", "en_US.UTF-8", NULL);
+        hash_map_insert(context.environ, "LANGUAGE", "en_US:en", NULL);
     }
     else {} //TODO
 
@@ -88,15 +88,15 @@ static void setup_initial_environ(Context *context) {
     for (size_t i = 0; i < 7; i++) {
         char *val = getenv(keys[i]);
         if (val)
-            hash_map_insert(context->environ, keys[i], val, NULL);
+            hash_map_insert(context.environ, keys[i], val, NULL);
     }
 
     get_managed_env(context);
-    if (context->managed_env == VSCODE_REMOTE_CONTAINERS) {
+    if (context.managed_env == VSCODE_REMOTE_CONTAINERS) {
         char **tmp = environ;
         while (*tmp) {
             if (strcmp(*tmp, "REMOTE_CONTAINERS_") == 0)
-                hash_map_insert(context->environ, *tmp, getenv(*tmp), NULL);
+                hash_map_insert(context.environ, *tmp, getenv(*tmp), NULL);
             tmp++;
         }
     }
@@ -109,28 +109,28 @@ static void check_container_call(void) {
     if (strcmp(container_v, VERSION_STRING) != 0) {} //TODO
 }
 
-Context *context_init(void) {
-    Context *context = calloc(1, sizeof(Context));
+static void context_init(void) {
+    memset(&context, 0, sizeof(Context));
 
     char *work_dir = getenv("KAS_WORK_DIR");
     if (work_dir == NULL) {} //TODO
 
-    context->kas_work_dir = realpath(work_dir, NULL);
-    if (context->kas_work_dir == NULL) {} //TODO
+    context.kas_work_dir = realpath(work_dir, NULL);
+    if (context.kas_work_dir == NULL) {} //TODO
 
     char *build_dir = getenv("KAS_BUILD_DIR");
     if (build_dir == NULL) {
-        asprintf(&build_dir, "%s/build", context->kas_work_dir);
+        asprintf(&build_dir, "%s/build", context.kas_work_dir);
     }
 
-    context->kas_build_dir = realpath(build_dir, NULL);
+    context.kas_build_dir = realpath(build_dir, NULL);
     free(build_dir);
-    if (context->kas_build_dir == NULL) {} //TODO
+    if (context.kas_build_dir == NULL) {} //TODO
 
     char *ref_dir = getenv("KAS_REPO_REF_DIR");
     if (ref_dir != NULL) {
-        context->kas_repo_ref_dir = realpath(ref_dir, NULL);
-        if (context->kas_repo_ref_dir == NULL) {} //TODO
+        context.kas_repo_ref_dir = realpath(ref_dir, NULL);
+        if (context.kas_repo_ref_dir == NULL) {} //TODO
     }
 
     char *clone_depth = getenv("KAS_CLONE_DEPTH");
@@ -141,35 +141,33 @@ Context *context_init(void) {
     if (!is_digit_string(clone_depth)) {} //TODO
     //raise KasUserError('KAS_CLONE_DEPTH must be a number')
 
-    context->repo_clone_depth = MAX(atoi(clone_depth), 0);
+    context.repo_clone_depth = MAX(atoi(clone_depth), 0);
 
     setup_initial_environ(context);
     check_container_call();
-    context->keyhandler = hash_map_init(8);
-    context->config = NULL;
+    context.keyhandler = hash_map_init(8);
+    context.config = NULL;
     //self.args = args
 
-    context->managed_paths = hash_set_init(8);
+    context.managed_paths = hash_set_init(8);
 
     if (getenv("KAS_BUILD_DIR") == NULL) {
-        hash_set_insert(context->managed_paths, context->kas_build_dir);
+        hash_set_insert(context.managed_paths, context.kas_build_dir);
     }
-
-    return context;
 }
 
-Context *get_context(void) {
+Context *context_get(void) {
     if (!initialized) {
-        context = context_init();
+        context_init();
         initialized = true;
     }
-    return context;
+    return &context;
 }
 
 void context_destroy(Context *context) {
+    if (!initialized) return;
+
     hash_map_destroy(context->environ);
     hash_set_destroy(context->managed_paths);
     hash_map_destroy(context->keyhandler);
-
-    free(context);
 }

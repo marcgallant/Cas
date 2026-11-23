@@ -56,7 +56,7 @@ static size_t decode_value(char *dst, size_t size, const char *src)
     return j;
 }
 
-static void parse_line(Distro *distro, char *line)
+static void parse_line(char *line)
 {
     char *p = trim(line);
 
@@ -79,7 +79,7 @@ static void parse_line(Distro *distro, char *line)
 
 #define SET_FIELD(k, f) \
     if (strcmp(key, k) == 0) { \
-        memcpy(distro->f, decoded, len); \
+        memcpy(distro.f, decoded, len); \
         return; \
     }
 
@@ -97,9 +97,9 @@ static void parse_line(Distro *distro, char *line)
 #undef SET_FIELD
 }
 
-void distro_load(Distro *distro) {
+static void distro_init(void) {
 
-    memset(distro, 0, sizeof(*distro));
+    memset(&distro, 0, sizeof(Distro));
     FILE *fp = fopen("/etc/os-release", "r");
 
     if (!fp)
@@ -111,14 +111,14 @@ void distro_load(Distro *distro) {
     char line[LINE_SIZE];
 
     while (fgets(line, sizeof(line), fp))
-        parse_line(distro, line);
+        parse_line(line);
 
     fclose(fp);
 }
 
 Distro *distro_get(void) {
     if (!initialized) {
-        distro_load(&distro);
+        distro_init();
         initialized = true;
     }
     return &distro;

@@ -80,27 +80,15 @@ int main(int argc, char *argv[]) {
 
     Parser *parser = kas_parser_init();
 
-    parser_print_help(parser);
-
-    parser_destroy(parser);
-
-    Context *context = context_init();
-
-    context_destroy(context);
-
-    Logger *logger = logger_init(NULL);
-    logger->level = LOG_DEBUG;
-
-    Distro distro = distro_get();
+    Distro *distro = distro_get();
 
     char *message;
-    asprintf(&message, "%s %s started on %s %s", basename(argv[0]), VERSION_STRING, distro.name, distro.version_id);
+    asprintf(&message, "%s %s started on %s %s", basename(argv[0]), VERSION_STRING, distro->name, distro->version_id);
+    log_info(message);
 
-    log_debug(logger, message);
-    log_info(logger, message);
-    log_warning(logger, message);
-    log_error(logger, message);
-    log_critical(logger, message);
+    free(message);
+
+    parser_destroy(parser);
 
     return 0;
 }
