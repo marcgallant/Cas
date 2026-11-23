@@ -29,26 +29,26 @@ void format(Formatter *formatter, const char *text) {
     int start = 0;
 
     while (start < len) {
-        int end = start + formatter->width;
+        int end = start + formatter->width - formatter->max_help_position;
 
         if (end >= len) {
             printf("%s\n", text + start);
             break;
         }
 
-        while (end > start && !isspace((unsigned char)text[end])) {
+        while (end > start && !isspace(text[end])) {
             end--;
         }
 
         if (end == start) {
-            end = start + formatter->width;
+            end = start + formatter->width - formatter->max_help_position;
         }
 
-        printf("%.*s\n", end - start, text + start);
+        printf("%.*s\n%*s", end - start, text + start, formatter->max_help_position, "");
 
         start = end;
 
-        while (isspace((unsigned char)text[start])) {
+        while (isspace(text[start])) {
             start++;
         }
     }

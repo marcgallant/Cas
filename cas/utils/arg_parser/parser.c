@@ -96,9 +96,9 @@ void optional_print_usage(Argument *optional) {
     printf("]");
 }
 
-void optional_print_help(Argument *optional) {
+void optional_print_help(Parser *parser, Argument *optional) {
     int n = 0;
-    n += printf("  ");
+    n += printf("%*s", parser->formatter->indent, "");
 
     const char **names = optional->data.optional.names;
 
@@ -155,12 +155,14 @@ void optional_print_help(Argument *optional) {
 
     printf(RESET);
 
-    if (n >= 24) {
+    if (n >= parser->formatter->max_help_position) {
         puts("");
         n = 0;
     }
 
-    printf("%*s%s\n", 24 - n, "", optional->help);
+    //TODO
+    printf("%*s", parser->formatter->max_help_position - n, "");
+    format(parser->formatter, optional->help);
 }
 
 void positional_print_usage(Argument *positional) {
@@ -189,9 +191,9 @@ void positional_print_usage(Argument *positional) {
     printf(RESET);
 }
 
-void positional_print_help(Argument *positional) {
+void positional_print_help(Parser *parent, Argument *positional) {
     int n = 0;
-    n += printf("  ");
+    n += printf("%*s", parent->formatter->indent, "");
 
     printf(GREEN BOLD);
 
@@ -205,12 +207,13 @@ void positional_print_help(Argument *positional) {
 
     printf(RESET);
 
-    if (n >= 24) {
+    if (n >= parent->formatter->max_help_position) {
         puts("");
         n = 0;
     }
 
-    printf("%*s%s\n", 24 - n, "", positional->help);
+    printf("%*s", parent->formatter->max_help_position - n, "");
+    format(parent->formatter, positional->help);
 }
 
 void subparser_print_usage(Argument *subparser) {
@@ -231,9 +234,10 @@ void subparser_print_usage(Argument *subparser) {
     printf(RESET);
 }
 
-void subparser_print_help(Argument *subparser) {
+void subparser_print_help(Parser *parent, Argument *subparser) {
     int n = 0;
-    n += printf("  ");
+    //TODO
+    n += printf("%*s", parent->formatter->indent, "");
 
     printf(GREEN BOLD);
     n += printf("{");
@@ -252,19 +256,21 @@ void subparser_print_help(Argument *subparser) {
     n += printf("}");
     printf(RESET);
 
-    if (n >= 24) {
+    if (n >= parent->formatter->max_help_position) {
         puts("");
         n = 0;
     }
 
-    printf("%*s%s\n", 24 - n, "", subparser->help);
+    //TODO
+    printf("%*s", parent->formatter->max_help_position - n, "");
+    format(parent->formatter, subparser->help);
 
     tmp = subparser->data.subparser.parsers->head;
     while (tmp) {
         Parser *parser = tmp->data;
 
         n = 0;
-        n += printf("    ");
+        n += printf("%*s", parent->formatter->indent * 2, "");
 
         printf(GREEN BOLD);
 
@@ -272,12 +278,13 @@ void subparser_print_help(Argument *subparser) {
 
         printf(RESET);
 
-        if (n >= 24) {
+        if (n >= parser->formatter->max_help_position) {
             puts("");
             n = 0;
         }
-
-        printf("%*s%s\n", 24 - n, "", parser->description);
+        //TODO
+        printf("%*s", parent->formatter->max_help_position - n, "");
+        format(parent->formatter, parser->description);
 
         tmp = tmp->next;
     }
@@ -299,7 +306,10 @@ void arguments_print_usage(struct dlist *arguments) {
     }
 }
 
-void arguments_print_help(struct dlist *arguments) {
+void arguments_print_help(Parser *parser) {
+    if (!parser) return;
+
+    struct dlist *arguments = parser->arguments;
     if (!arguments || arguments->size == 0) return;
 
     puts(BLUE BOLD "positional arguments:" RESET);
@@ -308,9 +318,9 @@ void arguments_print_help(struct dlist *arguments) {
     while (tmp) {
         Argument *arg= tmp->data;
         if (arg->type == ARG_POSITIONAL)
-            positional_print_help(arg);
+            positional_print_help(parser, arg);
         else
-            subparser_print_help(arg);
+            subparser_print_help(parser, arg);
 
         tmp = tmp->next;
     }
@@ -327,14 +337,17 @@ void options_print_usage(struct dlist *options) {
     }
 }
 
-void options_print_help(struct dlist *options) {
+void options_print_help(Parser *parser) {
+    if (!parser) return;
+
+    struct dlist *options = parser->options;
     if (!options || options->size == 0) return;
 
     puts(BLUE BOLD "options:" RESET);
 
     struct dlist_item *tmp = options->head;
     while (tmp) {
-        optional_print_help(tmp->data);
+        optional_print_help(parser, tmp->data);
         tmp = tmp->next;
     }
 }
@@ -353,11 +366,12 @@ void parser_print_usage(Parser *parser) {
 void parser_print_help(Parser *parser) {
     parser_print_usage(parser);
 
+    //TODO
     printf("\n%s\n\n", parser->description);
 
-    arguments_print_help(parser->arguments);
+    arguments_print_help(parser);
     puts("");
-    options_print_help(parser->options);
+    options_print_help(parser);
 }
 
 void parser_destroy(Parser *parser) {
