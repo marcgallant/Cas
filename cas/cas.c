@@ -82,11 +82,7 @@ int main(int argc, char *argv[]) {
 
     Distro *distro = distro_get();
 
-    char *message;
-    asprintf(&message, "%s %s started on %s %s", basename(argv[0]), VERSION_STRING, distro->name, distro->version_id);
-    log_info(message);
-
-    free(message);
+    log_info("%s %s started on %s %s", basename(argv[0]), VERSION_STRING, distro->name, distro->version_id);
 
     parser_destroy(parser);
 
