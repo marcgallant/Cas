@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -fPIC -Wall -Wextra -Werror -std=c11 -g -I utils
+CFLAGS = -fPIC -Wall -Wextra -Werror -std=c11 -g -I utils $(shell pkg-config --cflags libuv)
+LDLIBS = $(shell pkg-config --libs libuv)
 
 SRC = utils/dlist/dlist.c \
       utils/arg_parser/argument.c \
@@ -13,6 +14,7 @@ SRC = utils/dlist/dlist.c \
       utils/logger/logger.c \
       utils/cwalk/cwalk.c \
       configschema.c \
+      commands/setup_home.c \
       plugins/build.c \
       plugins/checkout.c \
       plugins/clean.c \
