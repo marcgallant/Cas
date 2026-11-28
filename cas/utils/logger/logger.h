@@ -23,15 +23,15 @@ typedef struct {
 
 Logger *logger_get();
 
-void log_debug(const char *message);
+void log_debug(const char *fmt, ...);
 
-void log_info(const char *message);
+void log_info(const char *fmt, ...);
 
-void log_warning(const char *message);
+void log_warning(const char *fmt, ...);
 
-void log_error(const char *message);
+void log_error(const char *fmt, ...);
 
-void log_critical(const char *message);
+void log_critical(const char *fmt, ...);
 
 void logger_destroy(Logger *logger);
 

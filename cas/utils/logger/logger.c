@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -46,7 +47,7 @@ Logger *logger_get(void) {
     return &logger;
 }
 
-static void print_log(LogLevel level, const char *message) {
+static void print_log(LogLevel level, const char *fmt, va_list args) {
     Logger *logger = logger_get();
     if (level < logger->level) return;
 
@@ -57,35 +58,55 @@ static void print_log(LogLevel level, const char *message) {
         fprintf(stderr, "%s", colors[level]);
 
     fprintf(stderr,
-           "%04d-%02d-%02d %02d:%02d:%02d - %-8s - %s\n",
-           t->tm_year + 1900,
-           t->tm_mon + 1,
-           t->tm_mday,
-           t->tm_hour,
-           t->tm_min,
-           t->tm_sec,
-           level_name[level],
-           message);
+            "%04d-%02d-%02d %02d:%02d:%02d - %-8s - ",
+            t->tm_year + 1900,
+            t->tm_mon + 1,
+            t->tm_mday,
+            t->tm_hour,
+            t->tm_min,
+            t->tm_sec,
+            level_name[level]);
+
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+
+    if (logger->color)
+        fprintf(stderr, "%s", RESET);
 }
 
-void log_debug(const char *message) {
-    print_log(LOG_DEBUG, message);
+void log_debug(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    print_log(LOG_DEBUG, fmt, args);
+    va_end(args);
 }
 
-void log_info(const char *message) {
-    print_log(LOG_INFO, message);
+void log_info(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    print_log(LOG_INFO, fmt, args);
+    va_end(args);
 }
 
-void log_warning(const char *message) {
-    print_log(LOG_WARNING, message);
+void log_warning(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    print_log(LOG_WARNING, fmt, args);
+    va_end(args);
 }
 
-void log_error(const char *message) {
-    print_log(LOG_ERROR, message);
+void log_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    print_log(LOG_ERROR, fmt, args);
+    va_end(args);
 }
 
-void log_critical(const char *message) {
-    print_log(LOG_CRITICAL, message);
+void log_critical(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    print_log(LOG_CRITICAL, fmt, args);
+    va_end(args);
 }
 
 void logger_destroy(Logger *logger) {
