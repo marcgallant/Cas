@@ -11,6 +11,8 @@ typedef enum {
     NONE
 } ManagedEnvironment;
 
+const char *managed_env_to_str(ManagedEnvironment);
+
 typedef struct {
     const char *kas_work_dir;
     const char *kas_build_dir;

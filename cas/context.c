@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/param.h>
 
+#include <cwalk/cwalk.h>
 #include <distro/distro.h>
 
 #include "version.h"
@@ -45,6 +46,12 @@ static bool is_digit_string(const char *str) {
     }
 
     return true;
+}
+
+static const char *managed_env_str[] = { "GITHUB_ACTIONS", "GITHUB_CI", "VSCODE_REMOTE_CONTAINERS" }; //TODO check
+
+const char *managed_env_to_str(ManagedEnvironment managed_env) {
+    return managed_env_str[managed_env];
 }
 
 void get_managed_env() {
@@ -118,13 +125,31 @@ static void context_init(void) {
     context.kas_work_dir = realpath(work_dir, NULL);
     if (context.kas_work_dir == NULL) {} //TODO
 
-    char *build_dir = getenv("KAS_BUILD_DIR");
-    if (build_dir == NULL) {
-        asprintf(&build_dir, "%s/build", context.kas_work_dir);
+    const char *build_dir_env = getenv("KAS_BUILD_DIR");
+
+    if (build_dir_env) {
+        context.kas_build_dir = realpath(build_dir_env, NULL);
+    } else {
+        size_t required = cwk_path_join(
+            context.kas_work_dir,
+            "build",
+            NULL,
+            0
+        );
+
+        char *build_dir = malloc(required + 1);
+
+        cwk_path_join(
+            context.kas_work_dir,
+            "build",
+            build_dir,
+            required + 1
+        );
+
+        context.kas_build_dir = realpath(build_dir, NULL);
+        free(build_dir);
     }
 
-    context.kas_build_dir = realpath(build_dir, NULL);
-    free(build_dir);
     if (context.kas_build_dir == NULL) {} //TODO
 
     char *ref_dir = getenv("KAS_REPO_REF_DIR");
