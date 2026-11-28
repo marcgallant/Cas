@@ -11,6 +11,7 @@ SRC = utils/dlist/dlist.c \
       utils/hash_map/hash_map.c \
       utils/distro/distro.c \
       utils/logger/logger.c \
+      utils/cwalk/cwalk.c \
       configschema.c \
       plugins/build.c \
       plugins/checkout.c \
